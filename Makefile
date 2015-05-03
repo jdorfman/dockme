@@ -1,10 +1,12 @@
 prefix?=$(HOME)/.bin
 
 fetch:
-	go get
+	go get github.com/codegangsta/cli
+	go get gopkg.in/yaml.v2
 
-install: fetch
-	go install
+install:
+	cd bin; go build -o dockme
+	cd bin; install -m 0755 dockme $(GOBIN)
 
 test: test/shunt.sh fetch
 	@./test/shunt.sh --verbose ./test/dockme_test.sh
@@ -15,7 +17,8 @@ test/shunt.sh:
 	install -m 0755 /tmp/shunt.sh test
 
 build:
-	go run dockme.go --config Buildme.yml
+	go run bin/dockme.go --config Buildme.yml
+	-sudo chown -R $(USER): builds
 
 docker/build: fetch clean
 	bash ./scripts/build.all.bash
